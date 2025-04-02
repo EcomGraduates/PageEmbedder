@@ -1,0 +1,11 @@
+{
+  "name": "freescout/pageembedder",
+  "description": "Embed external pages into FreeScout with custom navigation links or create own with html css and js",
+  "type": "freescout-module",
+  "autoload": {
+    "psr-4": {
+      "Modules\\PageEmbedder\\": ""
+    }
+  },
+  "require": {}
+} 

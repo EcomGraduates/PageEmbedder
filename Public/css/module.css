@@ -1,0 +1,70 @@
+/**
+ * Page Embedder module styles
+ */
+
+/* Navbar item styles */
+.navbar-nav > li > a [class^="glyphicon-"] {
+    font-size: 13px;
+    margin-right: 2px;
+    position: relative;
+    top: 1px;
+}
+
+/* Embedded iframe container styles */
+.embedded-container.seamless {
+    margin-top: -20px;
+}
+
+.embedded-container.hide-title {
+    margin-top: -10px;
+}
+
+.embedded-container.seamless.hide-title {
+    margin-top: -25px;
+}
+
+.embedded-panel {
+    border: none;
+    margin-bottom: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+#embedded-iframe {
+    width: 100%;
+    height: calc(100vh - 100px);
+    border: none;
+    background-color: white;
+    display: block;
+    transition: height 0.3s ease;
+}
+
+/* Settings page styles */
+.toggle-advanced-options {
+    margin-bottom: 15px;
+}
+
+.advanced-options {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+/* Custom scrollbar for the iframe */
+#embedded-iframe::-webkit-scrollbar {
+    width: 10px;
+}
+
+#embedded-iframe::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#embedded-iframe::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+#embedded-iframe::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 
