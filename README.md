@@ -86,6 +86,12 @@ Embedded pages are loaded in an iframe with appropriate security restrictions vi
 
 For custom HTML content, the module allows script execution within the context of your FreeScout installation. Use this feature responsibly.
 
+#Screenshots 
+
+<img width="2527" alt="image" src="https://github.com/user-attachments/assets/15387e5d-f653-4ba0-8bfd-7e19240aa47b" />
+<img width="2527" alt="image" src="https://github.com/user-attachments/assets/cc2aaf23-7f2e-4276-92fb-06eccb32b411" />
+
+
 ## License
 
 This module is licensed under the MIT License. 
