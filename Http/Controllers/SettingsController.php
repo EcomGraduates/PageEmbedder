@@ -30,8 +30,13 @@ class SettingsController extends Controller
             $embeddedPages = [];
         }
         
+        // Get module version from module.json
+        $moduleInfo = json_decode(file_get_contents(base_path('Modules/PageEmbedder/module.json')), true);
+        $moduleVersion = isset($moduleInfo['version']) ? $moduleInfo['version'] : '1.0.0';
+        
         return view('pageembedder::settings', [
-            'embeddedPages' => $embeddedPages
+            'embeddedPages' => $embeddedPages,
+            'moduleVersion' => $moduleVersion
         ]);
     }
     

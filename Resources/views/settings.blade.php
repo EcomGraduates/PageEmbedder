@@ -12,7 +12,7 @@
         <div class="col-xs-12 margin-top">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{{ __('Embedded Pages') }}</h3> <span class="badge badge-info">v1.0.1</span>
+                    <h3 class="panel-title">{{ __('Embedded Pages') }}</h3> <span class="badge badge-info">v{{ $moduleVersion }}</span>
                 </div>
                 <div class="panel-body">
                     <p class="text-help">
