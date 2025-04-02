@@ -1,5 +1,5 @@
 {
-  "name": "Page Embedder",
+  "name": "PageEmbedder",
   "alias": "pageembedder",
   "description": "Embed external pages into FreeScout with custom navigation links or create own with html css and js",
   "version": "1.0.0",
@@ -9,12 +9,14 @@
   "requiredAppVersion": "1.8",
   "license": "MIT",
   "keywords": [
+    "freescout",
+    "custom pages",
     "embed",
     "iframe",
     "external",
     "pages"
   ],
-  "img": "/modules/pageembedder/images/module.png",
+  "img": "https://raw.githubusercontent.com/EcomGraduates/PageEmbedder/refs/heads/main/Public/images/module.png",
   "active": 0,
   "order": 0,
   "providers": [
@@ -24,5 +26,7 @@
   "files": [
     "start.php"
   ],
-  "requires": []
+  "requires": [],
+  "latestVersionUrl": "https://raw.githubusercontent.com/EcomGraduates/PageEmbedder/refs/heads/main/module.json",
+  "latestVersionZipUrl": "https://github.com/EcomGraduates/PageEmbedder/archive/refs/heads/main.zip"
 } 
