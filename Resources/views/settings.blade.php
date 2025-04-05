@@ -6,7 +6,19 @@
 <div class="section-heading">
     {{ __('Page Embedder Settings') }}
 </div>
+<!-- Add CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!} />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css" integrity="sha512-R6PH4vSzF2Yxjdvb2p2FA06yWul+U0PDDav4b/od/oXf9Iw37zl10plvwOXelrjV2Ai7Eo3vyHeyFUjhXdBCVQ==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!} />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css" integrity="sha512-OmcLQEy8iGiD7PSm85s06dnR7G7C9C0VqahIPAj/KHk5RpOCmnC6R2ob1oK4/uwYhWa9BF1GC6tzxsC8TIx7Jg==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!} />
 
+<style {!! \Helper::cspNonceAttr() !!}>
+    .CodeMirror {
+        height: auto;
+        min-height: 150px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+</style>
 <div class="container">
     <div class="row">
         <div class="col-xs-12 margin-top">
@@ -478,9 +490,64 @@
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js" integrity="sha512-xwrAU5yhWwdTvvmMNheFn9IyuDbl/Kyghz2J3wQRDR8tyNmT8ZIYOd0V3iPYY/g4XdNPy0n/g0NvqGu9f0fPJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js" integrity="sha512-UWfBe6aiZInvbBlm91IURVHHTwigTPtM3M4B73a8AykmxhDWq4EC/V2rgUNiLgmd/i0y0KWHolqmVQyJ35JsNA==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js" integrity="sha512-0IM15+FEzmvrcePHk/gDCLbZnmja9DhCDUrESXPYLM4r+eDtNadxDUa5Fd/tNQGCbCoxu75TaVuvJkdmq0uh/w==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js" integrity="sha512-2gAMyrBfWPuTJDA2ZNIWVrBBe9eN6/hOjyvewDd0bsk2Zg06sUla/nPPlqQs75MQMvJ+S5AmfKmq9q3+W2qeKw==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js" integrity="sha512-IS1FyxQkiJHT1SAvLXBaJu1UTFSIw0GT/DuzxHl69djqyLoEwGmR2davcZUnB8M7ppi9nfTGZR/vdfqmWt+i6A==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closetag.min.js" integrity="sha512-ZUq/bxUHwC35d3oP1hC5lshiHFCnI3dDtDPtSp9+CQDy/YU0LQu2ujDd603LuWho0G4XH8MSvyLV47x2Zcd8Jw==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js" integrity="sha512-kCn9g92k3GM90eTPGMNwvpCAtLmvyqbpvrdnhm0NMt6UEHYs+DjRO4me8VcwInLWQ9azmamS1U1lbQV627/TBQ==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js" integrity="sha512-oxBKDzXElkyh3mQC/bKA/se1Stg1Q6fm7jz7PPY2kL01jRHQ64IwjpZVsuZojcaj5g8eKSMY9UJamtB1QR7Dmw==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
 
 <script type="text/javascript" {!! \Helper::cspNonceAttr() !!}>
     document.addEventListener('DOMContentLoaded', function() {
+        // Store CodeMirror instances
+        const codeMirrorInstances = {};
+        
+        // Function to initialize CodeMirror
+        function initCodeMirror(textarea) {
+            if (!textarea) return null;
+            
+            const index = textarea.closest('.embedded-page-item').getAttribute('data-index');
+            
+            // Check if we already have an instance for this textarea
+            if (codeMirrorInstances[index]) {
+                return codeMirrorInstances[index];
+            }
+            
+            // Create new CodeMirror instance
+            const editor = CodeMirror.fromTextArea(textarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                indentUnit: 4,
+                autoCloseTags: true,
+                matchBrackets: true,
+                extraKeys: {"Ctrl-Space": "autocomplete"},
+                lineWrapping: true
+            });
+            
+            // Save the instance
+            codeMirrorInstances[index] = editor;
+            
+            // Make sure CodeMirror updates the textarea value before form submit
+            editor.on('change', function() {
+                editor.save();
+            });
+            
+            return editor;
+        }
+        
+        // Initialize CodeMirror for all custom HTML textareas
+        function initAllCodeMirrors() {
+            document.querySelectorAll('.custom-html-textarea').forEach(function(textarea) {
+                initCodeMirror(textarea);
+            });
+        }
+        
+        // Initialize on page load
+        initAllCodeMirrors();
+        
         // Add page button
         document.getElementById('add-page').addEventListener('click', function() {
             const container = document.getElementById('embedded-pages-container');
@@ -554,6 +621,20 @@
             setupRemoveButtons();
             setupAdvancedOptions();
             setupContentTypeSelectors();
+            
+            // Initialize CodeMirror for the new textarea
+            const newTextarea = template.querySelector('.custom-html-textarea');
+            if (newTextarea) {
+                // Clear any existing CodeMirror
+                if (codeMirrorInstances[newIndex]) {
+                    delete codeMirrorInstances[newIndex];
+                }
+                
+                // We need to wait a moment for DOM to update
+                setTimeout(function() {
+                    initCodeMirror(newTextarea);
+                }, 100);
+            }
         });
         
         function setupRemoveButtons() {
@@ -562,6 +643,12 @@
                 button.addEventListener('click', function() {
                     const item = this.closest('.embedded-page-item');
                     const container = document.getElementById('embedded-pages-container');
+                    const index = item.getAttribute('data-index');
+                    
+                    // Remove CodeMirror instance
+                    if (codeMirrorInstances[index]) {
+                        delete codeMirrorInstances[index];
+                    }
                     
                     // Only remove if there's more than one item
                     if (container.querySelectorAll('.embedded-page-item').length > 1) {
@@ -571,6 +658,11 @@
                         const inputs = item.querySelectorAll('input[type="text"], input[type="url"], textarea');
                         inputs.forEach(function(input) {
                             input.value = '';
+                            
+                            // Clear CodeMirror if it's a custom HTML textarea
+                            if (input.classList.contains('custom-html-textarea') && codeMirrorInstances[index]) {
+                                codeMirrorInstances[index].setValue('');
+                            }
                         });
                         
                         // Reset checkboxes (only seamless is checked by default)
@@ -633,6 +725,11 @@
                 
                 if (urlInput) urlInput.required = true;
                 if (htmlTextarea) htmlTextarea.required = false;
+                
+                // Hide CodeMirror if it exists
+                if (codeMirrorInstances[index]) {
+                    codeMirrorInstances[index].getWrapperElement().style.display = 'none';
+                }
             } else {
                 urlGroup.classList.add('hidden');
                 htmlGroup.classList.remove('hidden');
@@ -641,6 +738,15 @@
                 
                 if (urlInput) urlInput.required = false;
                 if (htmlTextarea) htmlTextarea.required = true;
+                
+                // Show and refresh CodeMirror
+                if (codeMirrorInstances[index]) {
+                    codeMirrorInstances[index].getWrapperElement().style.display = '';
+                    codeMirrorInstances[index].refresh();
+                } else if (htmlTextarea) {
+                    // Initialize CodeMirror if it doesn't exist
+                    initCodeMirror(htmlTextarea);
+                }
             }
         }
         
