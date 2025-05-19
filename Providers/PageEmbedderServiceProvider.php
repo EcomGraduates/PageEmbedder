@@ -103,7 +103,7 @@ class PageEmbedderServiceProvider extends ServiceProvider
     {
         // Get saved embedded pages from database
         $embeddedPagesJson = Option::get('pageembedder_pages', '[]');
-        $pages = json_decode($embeddedPagesJson, true);
+        $pages = is_array($embeddedPagesJson) ? $embeddedPagesJson : json_decode($embeddedPagesJson, true);
         
         if (!empty($pages) && is_array($pages)) {
             // Add each page to the main menu
