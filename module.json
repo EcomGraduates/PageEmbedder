@@ -2,7 +2,7 @@
   "name": "PageEmbedder",
   "alias": "pageembedder",
   "description": "Embed external pages into FreeScout with custom navigation links or create own with html css and js",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "detailsUrl": "",
   "author": "EcomGraduates",
   "authorUrl": "https://github.com/EcomGraduates/PageEmbedder",
