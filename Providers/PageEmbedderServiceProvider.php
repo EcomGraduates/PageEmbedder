@@ -105,8 +105,20 @@ class PageEmbedderServiceProvider extends ServiceProvider
         $embeddedPagesJson = Option::get('pageembedder_pages', '[]');
         $pages = is_array($embeddedPagesJson) ? $embeddedPagesJson : json_decode($embeddedPagesJson, true);
         
-        if (!empty($pages) && is_array($pages)) {
-            // Add each page to the main menu
+        // Get navbar links separately
+        $navbarLinksJson = Option::get('pageembedder_navbar_links', '[]');
+        $navbarLinks = is_array($navbarLinksJson) ? $navbarLinksJson : json_decode($navbarLinksJson, true);
+        
+        if (!is_array($pages)) {
+            $pages = [];
+        }
+        
+        if (!is_array($navbarLinks)) {
+            $navbarLinks = [];
+        }
+        
+        // Register embedded pages in main menu
+        if (!empty($pages)) {
             \Eventy::addFilter('menu.main', function ($menuItems) use ($pages) {
                 // Get current user
                 $user = \Auth::user();
@@ -119,43 +131,69 @@ class PageEmbedderServiceProvider extends ServiceProvider
                             continue;
                         }
                         
-                        // Only add to main menu if not set to display in navbar
-                        if (empty($page['in_navbar'])) {
-                            $iconClass = !empty($page['icon_class']) ? $page['icon_class'] : 'glyphicon-bookmark';
-                            $menuItems[] = [
-                                'title' => $page['title'],
-                                'url' => url($page['path']),
-                                'iconclass' => 'glyphicon ' . $iconClass,
-                                'external' => false,
-                            ];
+                        // Skip pages set to display in navbar
+                        if (!empty($page['in_navbar'])) {
+                            continue;
                         }
+                        
+                        $iconClass = !empty($page['icon_class']) ? $page['icon_class'] : 'glyphicon-bookmark';
+                        $menuItems[] = [
+                            'title' => $page['title'],
+                            'url' => url($page['path']),
+                            'iconclass' => 'glyphicon ' . $iconClass,
+                            'external' => false,
+                        ];
                     }
                 }
                 return $menuItems;
             }, 20);
-            
-            // Add navbar items
-            \Eventy::addAction('menu.append', function() use ($pages) {
+        }
+        
+        // Add navbar items (embedded pages and links)
+        if (!empty($pages) || !empty($navbarLinks)) {
+            \Eventy::addAction('menu.append', function() use ($pages, $navbarLinks) {
                 // Get current user
                 $user = \Auth::user();
                 $isAdmin = $user && $user->isAdmin();
                 
                 $navbarItems = [];
                 
+                // Process embedded pages for navbar
                 foreach ($pages as $page) {
+                    // Skip admin-only pages if user is not an admin
+                    if (!empty($page['admin_only']) && $page['admin_only'] && !$isAdmin) {
+                        continue;
+                    }
+                    
+                    // Include only pages set to display in navbar
                     if (!empty($page['title']) && !empty($page['path']) && !empty($page['in_navbar'])) {
-                        // Skip admin-only pages if user is not an admin
-                        if (!empty($page['admin_only']) && $page['admin_only'] && !$isAdmin) {
-                            continue;
-                        }
-                        
                         $navbarItems[] = $page;
                     }
                 }
                 
+                // Render embedded pages in navbar
                 if (!empty($navbarItems)) {
                     echo \View::make('pageembedder::partials.navbar_items', [
-                        'pages' => $navbarItems
+                        'pages' => $navbarItems,
+                        'type' => 'embedded'
+                    ])->render();
+                }
+                
+                // Filter navbar links by admin access
+                $accessibleNavbarLinks = [];
+                foreach ($navbarLinks as $link) {
+                    // Skip admin-only links if user is not an admin
+                    if (!empty($link['admin_only']) && $link['admin_only'] && !$isAdmin) {
+                        continue;
+                    }
+                    $accessibleNavbarLinks[] = $link;
+                }
+                
+                // Render navbar links
+                if (!empty($accessibleNavbarLinks)) {
+                    echo \View::make('pageembedder::partials.navbar_items', [
+                        'pages' => $accessibleNavbarLinks,
+                        'type' => 'links'
                     ])->render();
                 }
             }, 20);
