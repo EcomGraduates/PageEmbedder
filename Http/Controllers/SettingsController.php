@@ -24,7 +24,7 @@ class SettingsController extends Controller
     {
         // Get stored pages
         $embeddedPagesJson = Option::get('pageembedder_pages', '[]');
-        $embeddedPages = json_decode($embeddedPagesJson, true);
+        $embeddedPages = is_array($embeddedPagesJson) ? $embeddedPagesJson : json_decode($embeddedPagesJson, true);
         
         if (!is_array($embeddedPages)) {
             $embeddedPages = [];
@@ -125,7 +125,7 @@ class SettingsController extends Controller
         }
         
         // Save to database
-        Option::set('pageembedder_pages', json_encode($pages));
+        Option::set('pageembedder_pages', $pages);
         
         \Session::flash('flash_success_floating', __('Settings saved'));
         

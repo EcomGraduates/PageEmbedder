@@ -26,7 +26,7 @@ class EmbeddedController extends Controller
         
         // Get all embedded pages from database
         $embeddedPagesJson = Option::get('pageembedder_pages', '[]');
-        $pages = json_decode($embeddedPagesJson, true);
+        $pages = is_array($embeddedPagesJson) ? $embeddedPagesJson : json_decode($embeddedPagesJson, true);
         
         // Find the matching page
         $matchedPage = null;
