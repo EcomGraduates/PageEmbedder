@@ -18,6 +18,14 @@
         border: 1px solid #ddd;
         border-radius: 4px;
     }
+    .spinning {
+        animation: spin 1s infinite linear;
+        display: inline-block;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
 </style>
 <div class="container">
     <div class="row">
@@ -37,10 +45,16 @@
                     <form class="form-horizontal" method="POST" action="{{ route('pageembedder.settings.save') }}">
                         {{ csrf_field() }}
                         
+                        <!-- Hidden input to track deleted pages -->
+                        <input type="hidden" name="deleted_pages" id="deleted-pages" value="">
+                        
                         <div id="embedded-pages-container">
                             @if (!empty($embeddedPages))
                                 @foreach ($embeddedPages as $index => $page)
                                     <div class="embedded-page-item" data-index="{{ $index }}">
+                                        <!-- Hidden input to mark if this page should be kept -->
+                                        <input type="hidden" name="keep_page[]" value="1" class="keep-page-input">
+                                        
                                         <div class="form-group{{ $errors->has('titles.'.$index) ? ' has-error' : '' }}">
                                             <label class="col-sm-2 control-label">{{ __('Menu Title') }}</label>
                                             <div class="col-sm-6">
@@ -255,6 +269,9 @@
                                 @endforeach
                             @else
                                 <div class="embedded-page-item" data-index="0">
+                                    <!-- Hidden input to mark if this page should be kept -->
+                                    <input type="hidden" name="keep_page[]" value="1" class="keep-page-input">
+                                    
                                     <div class="form-group{{ $errors->has('titles.0') ? ' has-error' : '' }}">
                                         <label class="col-sm-2 control-label">{{ __('Menu Title') }}</label>
                                         <div class="col-sm-6">
@@ -499,10 +516,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js" integrity="sha512-kCn9g92k3GM90eTPGMNwvpCAtLmvyqbpvrdnhm0NMt6UEHYs+DjRO4me8VcwInLWQ9azmamS1U1lbQV627/TBQ==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js" integrity="sha512-oxBKDzXElkyh3mQC/bKA/se1Stg1Q6fm7jz7PPY2kL01jRHQ64IwjpZVsuZojcaj5g8eKSMY9UJamtB1QR7Dmw==" crossorigin="anonymous" referrerpolicy="no-referrer" {!! \Helper::cspNonceAttr() !!}></script>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deletePageModal" tabindex="-1" role="dialog" aria-labelledby="deletePageModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="deletePageModalLabel">{{ __('Confirm Delete') }}</h4>
+            </div>
+            <div class="modal-body">
+                <p>{{ __('Are you sure you want to delete this embedded page?') }}</p>
+                <p class="text-danger"><strong>{{ __('This action cannot be undone.') }}</strong></p>
+                <div id="delete-loading" style="display: none;">
+                    <p class="text-center">
+                        <i class="glyphicon glyphicon-refresh spinning"></i> {{ __('Deleting...') }}
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="button" class="btn btn-danger" id="confirmDeletePage">{{ __('Delete Page') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" {!! \Helper::cspNonceAttr() !!}>
     document.addEventListener('DOMContentLoaded', function() {
         // Store CodeMirror instances
         const codeMirrorInstances = {};
+        let pageItemToDelete = null;
         
         // Function to initialize CodeMirror
         function initCodeMirror(textarea) {
@@ -557,6 +600,13 @@
             // Clone the first item
             const template = items[0].cloneNode(true);
             template.setAttribute('data-index', newIndex);
+            
+            // Make sure the keep_page input is set to 1
+            const keepPageInput = template.querySelector('.keep-page-input');
+            if (keepPageInput) {
+                keepPageInput.name = 'keep_page[]';
+                keepPageInput.value = '1';
+            }
             
             // Update content type radio names and reset to URL
             template.querySelectorAll('.content-type-selector').forEach(function(radio) {
@@ -642,38 +692,51 @@
             removeButtons.forEach(function(button) {
                 button.addEventListener('click', function() {
                     const item = this.closest('.embedded-page-item');
-                    const container = document.getElementById('embedded-pages-container');
-                    const index = item.getAttribute('data-index');
+                    pageItemToDelete = item;
                     
-                    // Remove CodeMirror instance
-                    if (codeMirrorInstances[index]) {
-                        delete codeMirrorInstances[index];
-                    }
-                    
-                    // Only remove if there's more than one item
-                    if (container.querySelectorAll('.embedded-page-item').length > 1) {
-                        item.remove();
-                    } else {
-                        // Clear values instead of removing the last item
-                        const inputs = item.querySelectorAll('input[type="text"], input[type="url"], textarea');
-                        inputs.forEach(function(input) {
-                            input.value = '';
-                            
-                            // Clear CodeMirror if it's a custom HTML textarea
-                            if (input.classList.contains('custom-html-textarea') && codeMirrorInstances[index]) {
-                                codeMirrorInstances[index].setValue('');
-                            }
-                        });
-                        
-                        // Reset checkboxes (only seamless is checked by default)
-                        item.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
-                            checkbox.checked = checkbox.name.includes('seamless');
-                        });
-                        
-                        // Hide advanced options
-                        item.querySelector('.advanced-options').style.display = 'none';
-                    }
+                    // Show the confirmation modal
+                    $('#deletePageModal').modal('show');
                 });
+            });
+            
+            // Confirm delete button in modal
+            document.getElementById('confirmDeletePage').addEventListener('click', function() {
+                if (!pageItemToDelete) return;
+                
+                // Show the loading indicator
+                document.getElementById('delete-loading').style.display = 'block';
+                
+                // Disable the buttons to prevent multiple clicks
+                this.disabled = true;
+                document.querySelector('#deletePageModal .btn-default').disabled = true;
+                
+                const index = pageItemToDelete.getAttribute('data-index');
+                
+                // Instead of removing the element, hide it and mark it as deleted
+                pageItemToDelete.style.display = 'none';
+                
+                // Mark the page as not kept in the form
+                const keepPageInput = pageItemToDelete.querySelector('.keep-page-input');
+                if (keepPageInput) {
+                    keepPageInput.value = '0';
+                }
+                
+                // Track deleted indices
+                const deletedPagesInput = document.getElementById('deleted-pages');
+                let deletedIndices = deletedPagesInput.value ? deletedPagesInput.value.split(',') : [];
+                deletedIndices.push(index);
+                deletedPagesInput.value = deletedIndices.join(',');
+                
+                // Remove CodeMirror instance
+                if (codeMirrorInstances[index]) {
+                    delete codeMirrorInstances[index];
+                }
+                
+                // Add a small delay for better user experience
+                setTimeout(function() {
+                    // Automatically submit the form to save changes immediately
+                    document.querySelector('form.form-horizontal').submit();
+                }, 500);
             });
         }
         

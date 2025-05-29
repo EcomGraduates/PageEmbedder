@@ -67,6 +67,8 @@ class SettingsController extends Controller
             'custom_css.*' => 'nullable|string|max:5000',
             'custom_js' => 'array',
             'custom_js.*' => 'nullable|string|max:5000',
+            'keep_page' => 'array',
+            'keep_page.*' => 'nullable|in:0,1',
         ], [
             'titles.*.required' => __('Title is required'),
             'urls.*.url' => __('URL must be valid'),
@@ -91,11 +93,17 @@ class SettingsController extends Controller
         $iconClass = $request->input('icon_class', []);
         $customCSS = $request->input('custom_css', []);
         $customJS = $request->input('custom_js', []);
+        $keepPage = $request->input('keep_page', []);
         
         $pages = [];
         
         // Combine the arrays into a structured format
         for ($i = 0; $i < count($titles); $i++) {
+            // Skip pages marked for deletion
+            if (!isset($keepPage[$i]) || $keepPage[$i] != '1') {
+                continue;
+            }
+            
             if (isset($titles[$i]) && isset($paths[$i])) {
                 // Determine if using custom HTML based on content type radio selection
                 $contentType = $request->input('content_type_' . $i, 'url');
